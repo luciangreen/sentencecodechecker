@@ -20,6 +20,7 @@
 :- use_module(contradiction, [check_claim/2]).
 :- use_module(sentence_parser, [parse_sentence/2]).
 :- use_module(proof_search, [prove/2]).
+:- use_module(library(lists)).
 
 explain_code(Code, Rules) :-
     setup_call_cleanup(

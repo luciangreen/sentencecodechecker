@@ -1,6 +1,7 @@
 :- module(sentence_parser, [parse_sentence/2]).
 
 :- use_module(library(dcg/basics)).
+:- use_module(library(apply)).
 
 parse_sentence(Sentence, Semantics) :-
     string_lower(Sentence, Lower),

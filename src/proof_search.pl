@@ -9,6 +9,8 @@
     ]).
 
 :- use_module(library(lists)).
+:- use_module(library(apply)).
+:- use_module(library(pairs), [map_list_to_pairs/3]).
 :- use_module(normalise, [canonical_form/2]).
 :- use_module(ontology,
     [ rule/2,

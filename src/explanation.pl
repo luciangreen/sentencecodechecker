@@ -1,5 +1,7 @@
 :- module(explanation, [explain_result/2, proof_to_text/2]).
 
+:- use_module(library(apply)).
+
 explain_result(correct(Proof), Text) :-
     proof_to_text(Proof, Explanation),
     format(string(Text), "The statement is supported: ~s", [Explanation]).

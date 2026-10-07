@@ -17,6 +17,7 @@
 :- use_module(sentence_semantics).
 :- use_module(code_semantics).
 :- use_module(explanation).
+:- use_module(library(filesex)).
 
 reason(Sentence, OntologyFile, _CodeDictionary, Result) :-
     clear_ontology,

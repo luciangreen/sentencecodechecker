@@ -1,5 +1,9 @@
+:- use_module(library(plunit)).
+
 :- begin_tests(reasoning).
 
+:- use_module(library(debug), [assertion/1]).
+:- use_module(library(lists), [member/2]).
 :- use_module('../src/main').
 :- use_module('../src/ontology').
 :- use_module('../src/rule_graph').

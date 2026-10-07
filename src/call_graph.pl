@@ -11,6 +11,9 @@
       mutually_recursive/2,
       base_case/1
     ]).
+:- use_module(library(apply)).
+:- use_module(library(lists)).
+:- use_module(library(readutil)).
 
 analyse_code_file(File) :-
     read_file_to_string(File, Source, []),
