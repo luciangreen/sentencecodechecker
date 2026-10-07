@@ -56,7 +56,7 @@ swipl -s src/main.pl -- connect "from" "to"
 **Example**
 
 ```bash
-swipl -s src/main.pl -- connect "a" "b"
+swipl -s src/main.pl -- connect "append" "two_lists"
 ```
 
 **What it prints**
@@ -94,7 +94,7 @@ swipl -s src/main.pl -- explain examples/member_example.pl "member recursively s
 swipl -s src/main.pl -- check "append joins two lists."
 
 # Show the connection between two graph nodes
-swipl -s src/main.pl -- connect "a" "b"
+swipl -s src/main.pl -- connect "append" "two_lists"
 
 # Explain whether a Prolog program matches a natural-language description
 swipl -s src/main.pl -- explain examples/member_example.pl "member recursively searches a list."
