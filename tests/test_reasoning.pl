@@ -7,6 +7,7 @@
 :- use_module('../src/proof_search').
 :- use_module('../src/contradiction').
 :- use_module('../src/code_semantics').
+:- use_module('../src/explanation').
 
 setup_clean :- clear_ontology.
 
@@ -94,8 +95,11 @@ test(recursive_predicates, [setup(setup_clean)]) :-
 test(mutually_recursive_predicates, [setup(setup_clean)]) :-
     check_code_sentence("a depends on b.", "a(X):-b(X). b(X):-a(X).", correct(_)).
 
-test(base_case_placeholder, [setup(setup_clean)]) :-
-    assertion(true).
+test(base_case_detection, [setup(setup_clean)]) :-
+    check_code_sentence(
+        "member has a base case.",
+        "member(X,[X|_]). member(X,[_|Xs]):-member(X,Xs).",
+        correct(_)).
 
 test(code_semantic_extraction, [setup(setup_clean)]) :-
     explain_code("p(X):-q(X).", Rules),
@@ -110,8 +114,10 @@ test(incorrect_code_description, [setup(setup_clean)]) :-
 test(unsupported_code_description, [setup(setup_clean)]) :-
     check_code_sentence("p sorts its input.", "p(X):-q(X).", unsupported(_)).
 
-test(counterexample_placeholder, [setup(setup_clean)]) :-
-    assertion(true).
+test(counterexample_generation, [setup(setup_clean)]) :-
+    assertz(concept(na)),
+    assertz(contradicts(concept(a),concept(na))),
+    counterexample(concept(a), counterexample(concept(a), proof(not(concept(a)),_))).
 
 test(inconsistent_ontology, [setup(setup_clean)]) :-
     assertz(concept(t)),
@@ -124,8 +130,10 @@ test(proof_explanation, [setup(setup_clean)]) :-
     prove(concept(a), Proof),
     assertion(Proof \= []).
 
-test(nlg_from_proof_placeholder, [setup(setup_clean)]) :-
-    assertion(true).
+test(nlg_from_proof, [setup(setup_clean)]) :-
+    proof_to_text(proof(relation(append, concatenate, two_lists), [fact(_)]), Text),
+    sub_string(Text, _, _, _, "append joins two lists"),
+    sub_string(Text, _, _, _, "known fact").
 
 test(ontology_hierarchy_expansion, [setup(setup_clean)]) :-
     assertz(rule(root,[left,right])), expand_rule(root, node(root,_)).
@@ -134,8 +142,18 @@ test(large_rule_dictionary, [setup(setup_clean)]) :-
     forall(between(1,50,N), (atom_concat(n,N,Node), atom_concat(n,N,Next), assertz(rule(Node,[Next])))),
     assertion(true).
 
-test(memoised_searches_placeholder, [setup(setup_clean)]) :-
-    assertion(true).
+test(memoised_searches, [setup(setup_clean)]) :-
+    assertz(rule(goal, [concept(a)])),
+    assertz(concept(a)),
+    shortest_proof(goal, First),
+    shortest_proof(goal, Second),
+    assertion(First == Second),
+    retractall(concept(a)),
+    assertion(\+ shortest_proof(goal, _)).
+
+test(default_ontology_example, [setup(setup_clean)]) :-
+    main:load_defaults,
+    check_idea("append joins two lists.", correct(_)).
 
 test(bounded_reasoning, [setup(setup_clean)]) :-
     assertz(rule(a,[b])),

@@ -55,9 +55,14 @@ as_atom(V, A) :- string(V), !, atom_string(A, V).
 
 load_defaults :-
     clear_ontology,
-    load_if_exists('/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/core_rules.pl'),
-    load_if_exists('/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/code_rules.pl'),
-    load_if_exists('/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/language_rules.pl').
+    source_file(main:load_defaults, MainFile),
+    file_directory_name(MainFile, SourceDirectory),
+    absolute_file_name('../ontology/core_rules.pl', CoreRules, [relative_to(SourceDirectory)]),
+    absolute_file_name('../ontology/code_rules.pl', CodeRules, [relative_to(SourceDirectory)]),
+    absolute_file_name('../ontology/language_rules.pl', LanguageRules, [relative_to(SourceDirectory)]),
+    load_if_exists(CoreRules),
+    load_if_exists(CodeRules),
+    load_if_exists(LanguageRules).
 
 load_if_exists(File) :-
     ( exists_file(File) -> load_ontology(File) ; true ).
@@ -79,7 +84,9 @@ run_cli(["check", Sentence]) :-
     writeln(Result).
 run_cli(["connect", A, B]) :-
     load_defaults,
-    find_rule_connection(A, B, Proof),
+    atom_string(From, A),
+    atom_string(To, B),
+    find_rule_connection(From, To, Proof),
     writeln(Proof).
 run_cli(["explain", CodeFile, Sentence]) :-
     code_semantics:check_code_sentence(Sentence, CodeFile, Result),

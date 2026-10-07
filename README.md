@@ -22,7 +22,7 @@ The CLI exposes three commands:
 
 ### `check`
 
-Use `check` when you want to ask whether a sentence is supported by the default rules loaded from `/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/core_rules.pl`, `/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/code_rules.pl`, and `/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/language_rules.pl`.
+Use `check` when you want to ask whether a sentence is supported by the default rules in `ontology/core_rules.pl`, `ontology/code_rules.pl`, and `ontology/language_rules.pl`.
 
 **Syntax**
 
