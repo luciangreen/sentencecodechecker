@@ -1,6 +1,7 @@
 :- module(hierarchy, [expand_rule/2]).
 
 :- use_module(ontology, [rule/2]).
+:- use_module(library(lists)).
 
 expand_rule(Rule, Tree) :-
     expand_rule(Rule, [], Tree).

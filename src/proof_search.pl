@@ -4,10 +4,13 @@
       breadth_first_proof/2,
       shortest_proof/2,
       bounded_proof/3,
-      proof_cost/2
+      proof_cost/2,
+      clear_proof_cache/0
     ]).
 
 :- use_module(library(lists)).
+:- use_module(library(apply)).
+:- use_module(library(pairs), [map_list_to_pairs/3]).
 :- use_module(normalise, [canonical_form/2]).
 :- use_module(ontology,
     [ rule/2,
@@ -23,11 +26,14 @@
       recursive/1,
       directly_recursive/1,
       mutually_recursive/2,
+      base_case/1,
       examines_elements/1,
       concept/1,
       type/2,
       definition/2
     ]).
+
+:- thread_local proof_cache/2.
 
 depth_first_proof(Claim, Proof) :- prove(Claim, Proof).
 
@@ -35,16 +41,23 @@ breadth_first_proof(Claim, Proof) :- shortest_proof(Claim, Proof).
 
 bounded_proof(Claim, MaxDepth, Proof) :-
     canonical_form(Claim, Canonical),
-    prove_(Canonical, [], Proof, 0, MaxDepth).
+    setup_call_cleanup(
+        clear_proof_cache,
+        prove_(Canonical, [], Proof, 0, MaxDepth),
+        clear_proof_cache).
 
 prove(Claim, Proof) :-
     shortest_proof(Claim, Proof), !.
 
 shortest_proof(Claim, Proof) :-
     canonical_form(Claim, Canonical),
-    findall(P, prove_(Canonical, [], P, 0, 12), Proofs),
-    Proofs \= [],
-    sort_by_cost(Proofs, [Proof|_]).
+    setup_call_cleanup(
+        clear_proof_cache,
+        ( findall(P, prove_(Canonical, [], P, 0, 12), Proofs),
+          Proofs \= [],
+          sort_by_cost(Proofs, [Proof|_])
+        ),
+        clear_proof_cache).
 
 sort_by_cost(Proofs, Sorted) :-
     map_list_to_pairs(proof_cost, Proofs, Pairs),
@@ -54,30 +67,50 @@ sort_by_cost(Proofs, Sorted) :-
 pairs_values([], []).
 pairs_values([_-V|T], [V|R]) :- pairs_values(T, R).
 
-prove_(not(C), Visited, proof(not(C), [Step]), Depth, MaxDepth) :-
+clear_proof_cache :-
+    retractall(proof_cache(_, _)).
+
+prove_(Claim, Visited, Proof, Depth, MaxDepth) :-
+    ( ground(Claim-Visited-Depth-MaxDepth)
+    -> Key = key(Claim, Visited, Depth, MaxDepth),
+       ( proof_cache(Key, Proofs)
+       -> member(Proof, Proofs)
+       ;  findall(P, prove_uncached(Claim, Visited, P, Depth, MaxDepth), Proofs),
+          ( maplist(ground, Proofs) -> assertz(proof_cache(Key, Proofs)) ; true ),
+          member(Proof, Proofs)
+       )
+    ;  prove_uncached(Claim, Visited, Proof, Depth, MaxDepth)
+    ).
+
+prove_uncached(not(C), Visited, proof(not(C), [Step]), Depth, MaxDepth) :-
     Depth =< MaxDepth,
     canonical_form(C, Canonical),
-    (   contradicts(Canonical, Other), prove_(Other, Visited, Step, Depth, MaxDepth)
-    ;   contradicts(Other, Canonical), prove_(Other, Visited, Step, Depth, MaxDepth)
+    Negative = not(Canonical),
+    \+ memberchk(Negative, Visited),
+    D1 is Depth + 1,
+    (   contradicts(Canonical, Other),
+        prove_(Other, [Negative|Visited], Step, D1, MaxDepth)
+    ;   contradicts(Other, Canonical),
+        prove_(Other, [Negative|Visited], Step, D1, MaxDepth)
     ).
-prove_(and(A,B), Visited, proof(and(A,B), [PA,PB]), Depth, MaxDepth) :-
+prove_uncached(and(A,B), Visited, proof(and(A,B), [PA,PB]), Depth, MaxDepth) :-
     D1 is Depth + 1,
     prove_(A, Visited, PA, D1, MaxDepth),
     prove_(B, Visited, PB, D1, MaxDepth).
-prove_(or(A,_), Visited, proof(or(A,_), [PA]), Depth, MaxDepth) :-
+prove_uncached(or(A,_), Visited, proof(or(A,_), [PA]), Depth, MaxDepth) :-
     D1 is Depth + 1,
     prove_(A, Visited, PA, D1, MaxDepth).
-prove_(or(_,B), Visited, proof(or(_,B), [PB]), Depth, MaxDepth) :-
+prove_uncached(or(_,B), Visited, proof(or(_,B), [PB]), Depth, MaxDepth) :-
     D1 is Depth + 1,
     prove_(B, Visited, PB, D1, MaxDepth).
-prove_(Claim, _, proof(Claim, [Fact]), _, _) :-
+prove_uncached(Claim, _, proof(Claim, [Fact]), _, _) :-
     known_fact(Claim, Fact).
-prove_(Claim, Visited, proof(Claim, [equivalent(Claim,EqProof)]), Depth, MaxDepth) :-
+prove_uncached(Claim, Visited, proof(Claim, [equivalent(Claim,EqProof)]), Depth, MaxDepth) :-
     \+ memberchk(Claim, Visited),
     D1 is Depth + 1,
     (equivalent(Claim, Eq) ; equivalent(Eq, Claim)),
     prove_(Eq, [Claim|Visited], EqProof, D1, MaxDepth).
-prove_(Claim, Visited, proof(Claim, [rule(Name,BodyProofs)]), Depth, MaxDepth) :-
+prove_uncached(Claim, Visited, proof(Claim, [rule(Name,BodyProofs)]), Depth, MaxDepth) :-
     Depth =< MaxDepth,
     \+ memberchk(Claim, Visited),
     ( rule(Name, Head, Body)

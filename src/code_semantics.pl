@@ -6,6 +6,8 @@
 :- use_module(call_graph, [analyse_code_atom/1, analyse_code_file/1]).
 :- use_module(ontology,
     [ recursive/1,
+      mutually_recursive/2,
+      base_case/1,
       calls/2,
       directly_calls/2,
       depends_on/2,
@@ -18,6 +20,7 @@
 :- use_module(contradiction, [check_claim/2]).
 :- use_module(sentence_parser, [parse_sentence/2]).
 :- use_module(proof_search, [prove/2]).
+:- use_module(library(lists)).
 
 explain_code(Code, Rules) :-
     setup_call_cleanup(
@@ -26,7 +29,9 @@ explain_code(Code, Rules) :-
             findall(recursive(P), recursive(P), Rs1),
             findall(calls(P,Q), calls(P,Q), Rs2),
             findall(directly_calls(P,Q), directly_calls(P,Q), Rs3),
-            append([Rs1,Rs2,Rs3], Rules)
+            findall(mutually_recursive(P,Q), mutually_recursive(P,Q), Rs4),
+            findall(base_case(P), base_case(P), Rs5),
+            append([Rs1,Rs2,Rs3,Rs4,Rs5], Rules)
         ),
         true).
 
@@ -55,6 +60,9 @@ sentence_claim_to_goal(claim(P, depends_on, Q), depends_on(PredP, PredQ)) :-
     as_atom(P, Ap), as_atom(Q, Aq),
     PredP = Ap/1,
     PredQ = Aq/1.
+sentence_claim_to_goal(claim(P, has_base_case, true), base_case(Predicate)) :-
+    as_atom(P, Name),
+    Predicate = Name/2.
 sentence_claim_to_goal(and(recursive(P), searches_list(P)), and(recursive(Pred), searches_list(Pred))) :-
     as_atom(P, Ap), Pred = Ap/2.
 sentence_claim_to_goal(Goal, Goal).

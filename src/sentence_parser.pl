@@ -1,6 +1,7 @@
 :- module(sentence_parser, [parse_sentence/2]).
 
 :- use_module(library(dcg/basics)).
+:- use_module(library(apply)).
 
 parse_sentence(Sentence, Semantics) :-
     string_lower(Sentence, Lower),
@@ -19,4 +20,5 @@ sentence_semantics(claim(P, depends_on, Q)) --> [P, depends, on, Q].
 sentence_semantics(claim(P, depends_on, Q)) --> [P, ultimately, depends, on, Q].
 sentence_semantics(claim(P, depends_on, Q)) --> [P, eventually, calls, Q].
 sentence_semantics(and(recursive(P), searches_list(P))) --> [P, recursively, searches, a, list].
+sentence_semantics(claim(P, has_base_case, true)) --> [P, has, a, base, case].
 sentence_semantics(claim(append, joins, two_lists)) --> [append, joins, two, lists].

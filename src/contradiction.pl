@@ -1,4 +1,4 @@
-:- module(contradiction, [check_claim/2]).
+:- module(contradiction, [check_claim/2, counterexample/2]).
 
 :- use_module(proof_search, [prove/2]).
 :- use_module(rule_graph, [find_rule_connection/3]).
@@ -7,6 +7,9 @@ check_claim(Claim, Result) :-
     ( prove(Claim, Proof) -> Provable = yes ; Provable = no ),
     ( prove(not(Claim), CounterProof) -> Disprovable = yes ; Disprovable = no ),
     classify(Claim, Provable, Proof, Disprovable, CounterProof, Result).
+
+counterexample(Claim, counterexample(Claim, Proof)) :-
+    prove(not(Claim), Proof).
 
 classify(_, yes, Proof, no, _, correct(Proof)).
 classify(_, no, _, yes, CounterProof, incorrect(CounterProof)).

@@ -17,6 +17,7 @@
       recursive/1,
       directly_recursive/1,
       mutually_recursive/2,
+      base_case/1,
       examines_elements/1,
       load_ontology/1,
       clear_ontology/0
@@ -26,7 +27,7 @@
            equivalent/2, contradicts/2, predicate_semantics/2, synonym/2,
            relation_property/2, type/2, calls/2, directly_calls/2,
            depends_on/2, recursive/1, directly_recursive/1, mutually_recursive/2,
-           examines_elements/1.
+           base_case/1, examines_elements/1.
 
 load_ontology(File) :-
     exists_file(File),
@@ -51,4 +52,5 @@ clear_ontology :-
     retractall(recursive(_)),
     retractall(directly_recursive(_)),
     retractall(mutually_recursive(_,_)),
+    retractall(base_case(_)),
     retractall(examines_elements(_)).

@@ -1,6 +1,7 @@
 :- module(normalise, [canonical_form/2]).
 
 :- use_module(ontology, [synonym/2]).
+:- use_module(library(apply)).
 
 canonical_form(Expression, Canonical) :-
     (   var(Expression)

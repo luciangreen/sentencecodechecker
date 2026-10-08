@@ -12,6 +12,8 @@
       directly_calls/2,
       depends_on/2
     ]).
+:- use_module(library(lists)).
+:- use_module(library(option)).
 
 find_rule_connection(A, B, Proof) :-
     find_rule_connection(A, B, Proof, [max_depth(20)]).

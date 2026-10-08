@@ -1,3 +1,5 @@
+:- use_module(library(plunit)).
+
 :- initialization(main).
 
 main :-

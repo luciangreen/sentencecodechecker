@@ -22,7 +22,7 @@ The CLI exposes three commands:
 
 ### `check`
 
-Use `check` when you want to ask whether a sentence is supported by the default rules loaded from `/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/core_rules.pl`, `/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/code_rules.pl`, and `/home/runner/work/sentencecodechecker/sentencecodechecker/ontology/language_rules.pl`.
+Use `check` when you want to ask whether a sentence is supported by the default rules in `ontology/core_rules.pl`, `ontology/code_rules.pl`, and `ontology/language_rules.pl`.
 
 **Syntax**
 
@@ -56,7 +56,7 @@ swipl -s src/main.pl -- connect "from" "to"
 **Example**
 
 ```bash
-swipl -s src/main.pl -- connect "a" "b"
+swipl -s src/main.pl -- connect "append" "two_lists"
 ```
 
 **What it prints**
@@ -94,7 +94,7 @@ swipl -s src/main.pl -- explain examples/member_example.pl "member recursively s
 swipl -s src/main.pl -- check "append joins two lists."
 
 # Show the connection between two graph nodes
-swipl -s src/main.pl -- connect "a" "b"
+swipl -s src/main.pl -- connect "append" "two_lists"
 
 # Explain whether a Prolog program matches a natural-language description
 swipl -s src/main.pl -- explain examples/member_example.pl "member recursively searches a list."
