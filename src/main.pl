@@ -33,6 +33,12 @@ check_idea(Sentence, Result) :-
     ; Result = ambiguous(Claims)
     ).
 
+% A denial is correct when its claim is refuted and incorrect when its claim
+% is proved; otherwise it is as unsupported as the claim.
+check_single_claim(neg(Claim), Result) :-
+    !,
+    check_single_claim(Claim, Positive),
+    negate_result(Positive, Result).
 check_single_claim(claim(S,P,O), Result) :-
     claim_goal(claim(S,P,O), Goal),
     check_claim(Goal, Result).
@@ -40,6 +46,10 @@ check_single_claim(and(A,B), Result) :-
     check_claim(and(A,B), Result).
 check_single_claim(Claim, Result) :-
     check_claim(Claim, Result).
+
+negate_result(correct(Proof), incorrect(denied_claim_proved(Proof))) :- !.
+negate_result(incorrect(CounterProof), correct(denied_claim_refuted(CounterProof))) :- !.
+negate_result(Other, Other).
 
 claim_goal(claim(S, directly_calls, O), directly_calls(SA/1, OA/1)) :-
     !,
