@@ -165,4 +165,22 @@ test(bounded_reasoning, [setup(setup_clean)]) :-
     assertz(concept(c)),
     bounded_proof(a, 1, _), !.
 
+test(denial_of_known_fact_is_incorrect, [setup(setup_clean)]) :-
+    assertz(synonym(joins, concatenate)),
+    assertz(relation(append, concatenate, two_lists)),
+    check_idea("append does not join two lists.", incorrect(_)).
+
+test(contracted_denial, [setup(setup_clean)]) :-
+    assertz(synonym(joins, concatenate)),
+    assertz(relation(append, concatenate, two_lists)),
+    check_idea("append doesn't join two lists.", incorrect(_)).
+
+test(denial_of_unknown_stays_unsupported, [setup(setup_clean)]) :-
+    check_idea("append does not join two lists.", unsupported(_)).
+
+test(digits_read_as_words, [setup(setup_clean)]) :-
+    assertz(synonym(joins, concatenate)),
+    assertz(relation(append, concatenate, two_lists)),
+    check_idea("append joins 2 lists.", correct(_)).
+
 :- end_tests(reasoning).

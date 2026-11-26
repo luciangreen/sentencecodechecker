@@ -99,3 +99,11 @@ swipl -s src/main.pl -- connect "append" "two_lists"
 # Explain whether a Prolog program matches a natural-language description
 swipl -s src/main.pl -- explain examples/member_example.pl "member recursively searches a list."
 ```
+
+## Denials and numbers
+
+"X does not V ...", "X doesn't V ..." and "X is not ..." are read as the
+denial of the plain claim. A denial is `incorrect` when the claim is proved,
+`correct` when the claim is refuted, and `unsupported` otherwise. Digits are
+read as number words, so "append joins 2 lists" means "append joins two
+lists".
